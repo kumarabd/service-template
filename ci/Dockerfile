@@ -1,8 +1,7 @@
 ARG server_version
-ARG parser_token
 
 FROM golang:1.15 as build-env
-WORKDIR /github.com/kumarabd/service
+WORKDIR /github.com/kumarabd/service-template
 COPY go.mod go.sum ./
 RUN go mod download
 
@@ -16,7 +15,6 @@ FROM gcr.io/distroless/base:nonroot-amd64
 ENV DISTRO="debian"
 ENV GOARCH="amd64"
 ENV SERVER_VERSION=$server_version
-ENV PARSER_TOKEN=$parser_token 
 WORKDIR /$HOME
-COPY --from=build-env /github.com/kumarabd/service .
+COPY --from=build-env /github.com/kumarabd/service-template .
 ENTRYPOINT ["./service"]

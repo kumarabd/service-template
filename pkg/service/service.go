@@ -7,6 +7,7 @@ import (
 	"github.com/realnighthawk/bucky/logger"
 	"github.com/realnighthawk/bucky/server"
 	"github.com/realnighthawk/bucky/server/http"
+	"github.com/realnighthawk/bucky/tracing"
 )
 
 type Handler struct {
@@ -30,13 +31,25 @@ func New(l logger.Handler, config config_package.Handler) (*Handler, error) {
 		return nil, err
 	}
 
-	// Enable Prometheus metrics for this application
-	mOpts := apm.Options{}
-	err = config.GetObject(internal_config.MonitoringConfig, &mOpts)
-	if err != nil {
-		return nil, err
+	// Enable Metrics for this application
+	if config.Is(internal_config.MonitoringConfig) {
+		mOpts := apm.Options{}
+		err := config.GetObject(internal_config.MonitoringConfig, &mOpts)
+		if err != nil {
+			return nil, err
+		}
+		s.EnableMetrics(mOpts)
 	}
-	s.EnableMetrics(mOpts)
+
+	// Enable Tracing for this application
+	if config.Is(internal_config.TracingConfig) {
+		tOpts := tracing.Options{}
+		err := config.GetObject(internal_config.MonitoringConfig, &tOpts)
+		if err != nil {
+			return nil, err
+		}
+		// TODO: Add tracing init
+	}
 
 	return &Handler{
 		log:    l,

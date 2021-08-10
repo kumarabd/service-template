@@ -14,4 +14,7 @@ server:
 monitoring:
   prometheus:
     enabled: true
+tracing:
+  otel:
+    enabled: true
     

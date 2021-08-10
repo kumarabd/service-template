@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -11,6 +12,7 @@ import (
 const (
 	ServerConfig     = "server"
 	MonitoringConfig = "monitoring"
+	TracingConfig    = "tracing"
 )
 
 // New creates a new config instance
@@ -27,6 +29,10 @@ func New() (config.Handler, error) {
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	if os.Getenv("SERVER_VERSION") != "" {
+		handler.SetKey(fmt.Sprintf("%s.version", ServerConfig), os.Getenv("SERVER_VERSION"))
 	}
 
 	return handler, nil
