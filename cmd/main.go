@@ -4,21 +4,15 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/kumarabd/service-template/internal/cache"
 	"github.com/kumarabd/service-template/internal/config"
 	"github.com/kumarabd/service-template/pkg/service"
 	"github.com/realnighthawk/bucky/logger"
 )
 
-func handleError(log logger.Handler, err error) {
-	if err != nil {
-		log.Error(err)
-		os.Exit(1)
-	}
-}
-
 func main() {
 	// Initialize Logger instance
-	log, err := logger.New("service", logger.Options{
+	log, err := logger.New(config.ApplicationName, logger.Options{
 		Format: logger.SyslogLogFormat,
 	})
 	if err != nil {
@@ -27,18 +21,34 @@ func main() {
 	}
 
 	// Config init and seed
-	cfg, err := config.New()
-	handleError(log, err)
+	configHandler, err := config.New()
+	if err != nil {
+		log.Error(err)
+		os.Exit(1)
+	}
+
+	// Cache init and seed
+	cacheHandler, err := cache.New()
+	if err != nil {
+		log.Error(err)
+		os.Exit(1)
+	}
 
 	// Service Initialization
-	svc, err := service.New(log, cfg)
-	handleError(log, err)
+	svc, err := service.New(log, configHandler, cacheHandler)
+	if err != nil {
+		log.Error(err)
+		os.Exit(1)
+	}
 
 	log.Info("service started")
 	ch := make(chan error)
 	go svc.Server.Run(ch)
 	select {
 	case err := <-ch:
-		handleError(log, err)
+		if err != nil {
+			log.Error(err)
+			os.Exit(1)
+		}
 	}
 }

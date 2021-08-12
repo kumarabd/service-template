@@ -1,18 +1,22 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/realnighthawk/bucky/config"
-	configprovider "github.com/realnighthawk/bucky/config/provider"
+	"github.com/realnighthawk/bucky/config/viper"
 )
 
 const (
 	ServerConfig     = "server"
 	MonitoringConfig = "monitoring"
 	TracingConfig    = "tracing"
+)
+
+var (
+	ApplicationName    = "default"
+	ApplicationVersion = "dev"
 )
 
 // New creates a new config instance
@@ -22,7 +26,7 @@ func New() (config.Handler, error) {
 		return nil, err
 	}
 
-	handler, err := configprovider.NewViper(configprovider.Options{
+	handler, err := viper.New(viper.Options{
 		FilePath: filepath.Join(wd, "internal", "config"),
 		FileType: "yaml",
 		FileName: "config",
@@ -31,9 +35,8 @@ func New() (config.Handler, error) {
 		return nil, err
 	}
 
-	if os.Getenv("SERVER_VERSION") != "" {
-		handler.SetKey(fmt.Sprintf("%s.version", ServerConfig), os.Getenv("SERVER_VERSION"))
-	}
+	// Seed config
+	// TODO: Seed useful config
 
 	return handler, nil
 }

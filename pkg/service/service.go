@@ -3,6 +3,7 @@ package service
 import (
 	internal_config "github.com/kumarabd/service-template/internal/config"
 	"github.com/realnighthawk/bucky/apm"
+	cache_package "github.com/realnighthawk/bucky/cache"
 	config_package "github.com/realnighthawk/bucky/config"
 	"github.com/realnighthawk/bucky/logger"
 	"github.com/realnighthawk/bucky/server"
@@ -14,12 +15,12 @@ type Handler struct {
 	Server server.Server
 	log    logger.Handler
 	config config_package.Handler
-	cache  config_package.Handler
+	cache  cache_package.Handler
 	//database
 	//broker
 }
 
-func New(l logger.Handler, config config_package.Handler) (*Handler, error) {
+func New(l logger.Handler, config config_package.Handler, cache cache_package.Handler) (*Handler, error) {
 	// Initiate Server object
 	sOpts := server.Options{}
 	err := config.GetObject(internal_config.ServerConfig, &sOpts)
@@ -55,5 +56,6 @@ func New(l logger.Handler, config config_package.Handler) (*Handler, error) {
 		log:    l,
 		Server: s,
 		config: config,
+		cache:  cache,
 	}, nil
 }
