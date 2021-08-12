@@ -45,11 +45,9 @@ func main() {
 	log.Info("service started")
 	ch := channels.NewServerChannel()
 	go svc.Server.Run(ch)
-	select {
-	case err := <-ch:
-		if err != nil {
-			log.Error(err)
-			os.Exit(1)
-		}
+	err = <-ch
+	if err != nil {
+		log.Error(err)
+		os.Exit(1)
 	}
 }
