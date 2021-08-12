@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/kumarabd/service-template/internal/cache"
+	"github.com/kumarabd/service-template/internal/channels"
 	"github.com/kumarabd/service-template/internal/config"
 	"github.com/kumarabd/service-template/pkg/service"
 	"github.com/realnighthawk/bucky/logger"
@@ -42,7 +43,7 @@ func main() {
 	}
 
 	log.Info("service started")
-	ch := make(chan error)
+	ch := channels.NewServerChannel()
 	go svc.Server.Run(ch)
 	select {
 	case err := <-ch:
