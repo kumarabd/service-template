@@ -4,14 +4,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/realnighthawk/bucky/config"
+	"github.com/realnighthawk/bucky/apm"
 	"github.com/realnighthawk/bucky/config/viper"
-)
-
-const (
-	ServerConfig     = "server"
-	MonitoringConfig = "monitoring"
-	TracingConfig    = "tracing"
+	"github.com/realnighthawk/bucky/server/http/gin"
+	"github.com/realnighthawk/bucky/tracing"
 )
 
 var (
@@ -19,8 +15,14 @@ var (
 	ApplicationVersion = "dev"
 )
 
+type Static struct {
+	Server     gin.Options     `json:"server,omitempty" yaml:"server,omitempty"`
+	Monitoring apm.Options     `json:"monitoring,omitempty" yaml:"monitoring,omitempty"`
+	Tracing    tracing.Options `json:"tracing,omitempty" yaml:"tracing,omitempty"`
+}
+
 // New creates a new config instance
-func New() (config.Handler, error) {
+func New() (*Static, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -37,6 +39,8 @@ func New() (config.Handler, error) {
 
 	// Seed config
 	// TODO: Seed useful config
+	static := &Static{}
+	handler.GetAll(&static)
 
-	return handler, nil
+	return static, nil
 }

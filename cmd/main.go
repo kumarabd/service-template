@@ -22,7 +22,7 @@ func main() {
 	}
 
 	// Config init and seed
-	configHandler, err := config.New()
+	staticConfig, err := config.New()
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
@@ -36,7 +36,7 @@ func main() {
 	}
 
 	// Service Initialization
-	svc, err := service.New(log, configHandler, cacheHandler)
+	svc, err := service.New(log, staticConfig, cacheHandler)
 	if err != nil {
 		log.Error(err)
 		os.Exit(1)
