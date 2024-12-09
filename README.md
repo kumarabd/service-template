@@ -12,11 +12,3 @@ This package contains the code that the user intends to hide or disable others f
 
 ### pkg/
 This package contains sub packages that can be used across different projects, packages.
-
-## Components
-### logger
-### config
-### cache
-### server
-### database
-### broker

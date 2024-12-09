@@ -2,12 +2,11 @@ package config
 
 import (
 	"os"
-	"path/filepath"
 
-	"github.com/realnighthawk/bucky/apm"
-	"github.com/realnighthawk/bucky/config/viper"
-	"github.com/realnighthawk/bucky/server/http/gin"
-	"github.com/realnighthawk/bucky/tracing"
+	"github.com/kumarabd/service-template/internal/metrics"
+	"github.com/kumarabd/service-template/pkg/server"
+	"github.com/kumarabd/service-template/pkg/service"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -15,32 +14,29 @@ var (
 	ApplicationVersion = "dev"
 )
 
-type Static struct {
-	Server     gin.Options     `json:"server,omitempty" yaml:"server,omitempty"`
-	Monitoring apm.Options     `json:"monitoring,omitempty" yaml:"monitoring,omitempty"`
-	Tracing    tracing.Options `json:"tracing,omitempty" yaml:"tracing,omitempty"`
+type Config struct {
+	Server  *server.Config   `json:"server,omitempty" yaml:"server,omitempty"`
+	Service *service.Config  `json:"service" yaml:"service"`
+	Metrics *metrics.Options `json:"metrics,omitempty" yaml:"metrics,omitempty"`
+	//Traces  *traces.Options  `json:"traces,omitempty" yaml:"traces,omitempty"`
 }
 
 // New creates a new config instance
-func New() (*Static, error) {
-	wd, err := os.Getwd()
+func New() (*Config, error) {
+	configFilePath := os.Getenv("CONFIG_PATH")
+	if len(configFilePath) == 0 {
+		configFilePath = "/app/config.yaml"
+	}
+
+	configContent, err := os.ReadFile(configFilePath)
 	if err != nil {
 		return nil, err
 	}
 
-	handler, err := viper.New(viper.Options{
-		FilePath: filepath.Join(wd, "internal", "config"),
-		FileType: "yaml",
-		FileName: "config",
-	})
+	configObject := Config{}
+	err = yaml.Unmarshal(configContent, &configObject)
 	if err != nil {
 		return nil, err
 	}
-
-	// Seed config
-	// TODO: Seed useful config
-	static := &Static{}
-	handler.GetAll(&static)
-
-	return static, nil
+	return &configObject, nil
 }
